@@ -39,8 +39,8 @@ FROM orders
 SELECT pid 
 FROM orders
 WHERE cid NOT IN (SELECT cid
-		FROM orders
-		WHERE aid = 'a08')
+		    FROM orders
+		    WHERE aid = 'a08')
 ORDER BY pid DESC; 
 
 --#6
@@ -49,16 +49,16 @@ FROM customers
 WHERE cid in (SELECT cid 
 		FROM orders
 		WHERE aid in (SELECT aid 
-			FROM agents
-			WHERE (city = 'Dallas'
-			OR city = 'New York')));
+				FROM agents
+				WHERE (city = 'Dallas'
+				OR city = 'New York')));
 --#7
 SELECT cid, name 
 FROM customers 
 WHERE discount in (SELECT discount 
-		FROM customers 
-		WHERE (city ='Dallas' OR 
-			city = 'London'));
+		     FROM customers 
+		     WHERE (city ='Dallas' OR 
+				city = 'London'));
 
 /* 
 #8
