@@ -22,7 +22,16 @@ FROM customers
 WHERE cid in (SELECT cid 
 		FROM orders 
 		WHERE aid != 'a03');
+		
+-- correct answer
 
+SELECT cid, name 
+FROM customers 
+WHERE cid not in (SELECT cid 
+		  FROM orders 
+		  WHERE aid != 'a03');
+
+--#4
 SELECT cid 
 FROM orders 
 WHERE pid = 'p01' 
@@ -36,11 +45,14 @@ FROM orders
 --the answer should be c006
 
 --#5
-SELECT pid 
-FROM orders
-WHERE cid NOT IN (SELECT cid
-		    FROM orders
-		    WHERE aid = 'a08')
+SELECT pid
+FROM products
+EXCEPT
+	SELECT distinct pid 
+	FROM orders
+	WHERE cid IN (SELECT cid
+		      FROM orders
+		      WHERE aid = 'a08')
 ORDER BY pid DESC; 
 
 --#6
