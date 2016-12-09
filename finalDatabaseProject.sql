@@ -648,6 +648,23 @@ INNER JOIN snlCast sc		ON p.pid = sc.pid
 WHERE prevCastMemb = true
 ORDER BY numShowsHosted ASC;
 
+--#3 Query - shows characters where the cast member who plays them makes the least money and the season they stared in
+SELECT p.fname, p.lname, c.name, sc.startSeason
+FROM characters c 
+INNER JOIN playsCharacter pc 		ON c.charID = pc.charID
+INNER JOIN snlCast sc			ON sc.pid = pc.pid
+INNER JOIN people p			ON p.pid = sc.pid
+WHERE (p.salaryUSD < 5000); 
+
+--#4 Query shows the names of cast members who can perform more than 25 impressions.
+SELECT p.fname, p.lname, SUM(sc.numOfImpressions) AS "Number of Impressions"
+FROM snlCast sc
+INNER JOIN people p		ON p.pid = sc.pid
+GROUP BY p.pid
+HAVING SUM(numOfImpressions) > 25
+ORDER BY p.fname;
+
+
 
 
 --stored procedure to go with triggers
@@ -708,3 +725,34 @@ create trigger quitShow
 after update on snlCast
 for each row
 execute procedure quitShow();
+
+
+
+-- Update characters table Stored Procedure
+CREATE OR REPLACE FUNCTION addtoSketches()
+RETURNS TRIGGER AS
+$$
+BEGIN 
+   IF NEW.lengthMin > 10.00 THEN
+      INSERT INTO Sketches(charID) 
+      VALUES (NEW.charID);
+   END IF;
+   RETURN NEW;
+END;
+$$
+language plpgsql;
+
+-- Update Jewelry table Trigger
+CREATE TRIGGER addtoCharacters
+AFTER INSERT ON Characters
+FOR EACH ROW 
+EXECUTE PROCEDURE addtoSketches();
+
+-- Test them.
+insert into characters (charID, name, numAppearances);
+values(20, 'Debby Downer', 1);
+
+
+
+
+
