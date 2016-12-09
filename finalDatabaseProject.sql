@@ -665,9 +665,33 @@ HAVING SUM(numOfImpressions) > 25
 ORDER BY p.fname;
 
 
+-- Update crew with pid that has been inserted into people table with a salaryUSD < 4000 USD
+CREATE OR REPLACE FUNCTION addtoSketches()
+RETURNS TRIGGER AS
+$$
+BEGIN 
+   IF NEW.salaryUSD < 4000 THEN
+      INSERT INTO Crew(pid) 
+      VALUES (NEW.pid);
+   END IF;
+   RETURN NEW;
+END;
+$$
+language plpgsql;
 
+-- Update trigger
+CREATE TRIGGER addtoCharacters
+AFTER INSERT ON people
+FOR EACH ROW 
+EXECUTE PROCEDURE addtoSketches();
 
---stored procedure to go with triggers
+-- Test them.
+INSERT INTO people(pid, fname, lname, DOB, salaryUSD)
+      VALUES (100, 'John', 'Smith', '1954-12-11', 1);
+      
+Select * from crew;
+
+--some attempted triggers
 
 CREATE OR REPLACE FUNCTION addCharacter(text, REFCURSOR)
 RETURNS refcursor as $$
@@ -733,26 +757,23 @@ CREATE OR REPLACE FUNCTION addtoSketches()
 RETURNS TRIGGER AS
 $$
 BEGIN 
-   IF NEW.lengthMin > 10.00 THEN
-      INSERT INTO Sketches(charID) 
-      VALUES (NEW.charID);
+   IF NEW.prevCastMember = true THEN
+      INSERT INTO snlCast(pid) 
+      VALUES (NEW.pid);
    END IF;
    RETURN NEW;
 END;
 $$
 language plpgsql;
 
--- Update Jewelry table Trigger
+
 CREATE TRIGGER addtoCharacters
-AFTER INSERT ON Characters
+AFTER INSERT ON hosts
 FOR EACH ROW 
 EXECUTE PROCEDURE addtoSketches();
 
 -- Test them.
-insert into characters (charID, name, numAppearances);
-values(20, 'Debby Downer', 1);
-
-
-
+INSERT INTO hosts(pid, occupation, numShowsHosted, prevCastMemb) 
+      VALUES (100, 'singer', 1, true)
 
 
